@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Muffle — passive noise reduction ear defenders designed for deep work in busy environments." />
+  <title>Muffle — Focus Anywhere. Even in Chaos.</title>
+  <style>
+    /* ─── Reset ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    /* ─── Tokens ─────────────────────────────────── */
+    :root {
+      --c-primary:    #4A4A4A;
+      --c-secondary:  #F5F5F5;
+      --c-black:      #111111;
+      --c-white:      #FFFFFF;
+      --c-muted:      #888888;
+      --c-border:     #E2E2E2;
+      --c-success:    #2D7A4F;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --max-w: 1140px;
+      --nav-h: 68px;
+      --radius: 6px;
+      --radius-lg: 14px;
+      --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ─── Base ───────────────────────────────────── */
+    body {
+      font-family: var(--font);
+      color: var(--c-black);
+      background: var(--c-white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+    h1, h2, h3 { line-height: 1.15; letter-spacing: -0.025em; }
+
+    /* ─── Navigation ─────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: var(--nav-h);
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+      transition: box-shadow 0.3s var(--ease);
+    }
+    .nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,0.06); }
+    .nav__inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 28px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav__logo {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--c-black);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .nav__cta {
+      background: var(--c-primary);
+      color: var(--c-white);
+      border: none;
+      border-radius: var(--radius);
+      padding: 10px 22px;
+      font-family: var(--font);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .nav__cta:hover { opacity: 0.78; transform: translateY(-1px); }
+    .nav__cta:active { transform: translateY(0); }
+    .nav__cta:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 3px; }
+
+    /* ─── Hero Carousel ──────────────────────────── */
+    .hero {
+      padding-top: var(--nav-h);
+      height: 100dvh;
+      min-height: 580px;
+      max-height: 900px;
+      position: relative;
+      overflow: hidden;
+    }
+    .carousel {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Slides */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.85s var(--ease);
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Slide backgrounds */
+    .slide--1 { background: linear-gradient(145deg, #131313 0%, #2a2a2a 55%, #3d3d3d 100%); }
+    .slide--2 { background: linear-gradient(155deg, #f9f9f9 0%, #f0f0f0 50%, #e8e8e8 100%); }
+    .slide--3 { background: linear-gradient(140deg, #1e1e1e 0%, #4a4a4a 100%); }
+    .slide--4 { background: linear-gradient(150deg, #ffffff 0%, #f5f5f5 60%, #eaeaea 100%); }
+
+    /* Decorative ring — ear-defender silhouette motif */
+    .slide__deco {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .slide--1 .slide__deco,
+    .slide--3 .slide__deco {
+      width: 520px; height: 520px;
+      right: -120px; top: 50%;
+      transform: translateY(-50%);
+      background: radial-gradient(circle, rgba(255,255,255,0.035) 0%, transparent 70%);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .slide--2 .slide__deco,
+    .slide--4 .slide__deco {
+      width: 480px; height: 480px;
+      right: -100px; top: 50%;
+      transform: translateY(-50%);
+      background: radial-gradient(circle, rgba(0,0,0,0.025) 0%, transparent 65%);
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .slide__content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 780px;
+      padding: 0 32px;
+    }
+    .slide__eyebrow {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .slide__title {
+      font-size: clamp(2.75rem, 7vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.05;
+      margin-bottom: 22px;
+    }
+    .slide__sub {
+      font-size: clamp(1rem, 1.8vw, 1.1875rem);
+      line-height: 1.65;
+      font-weight: 400;
+      max-width: 540px;
+      margin: 0 auto 40px;
+    }
+    .slide__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 30px;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .slide__btn:hover { opacity: 0.82; transform: translateY(-2px); }
+    .slide__btn:active { transform: translateY(0); }
+    .slide__btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+    /* Dark slide colours */
+    .slide--1 .slide__eyebrow,
+    .slide--3 .slide__eyebrow  { color: rgba(255,255,255,0.45); }
+    .slide--1 .slide__title,
+    .slide--3 .slide__title    { color: #ffffff; }
+    .slide--1 .slide__sub,
+    .slide--3 .slide__sub      { color: rgba(255,255,255,0.68); }
+    .slide--1 .slide__btn,
+    .slide--3 .slide__btn      { background: #ffffff; color: #1a1a1a; }
+
+    /* Light slide colours */
+    .slide--2 .slide__eyebrow,
+    .slide--4 .slide__eyebrow  { color: var(--c-muted); }
+    .slide--2 .slide__title,
+    .slide--4 .slide__title    { color: var(--c-black); }
+    .slide--2 .slide__sub,
+    .slide--4 .slide__sub      { color: #555555; }
+    .slide--2 .slide__btn,
+    .slide--4 .slide__btn      { background: var(--c-primary); color: var(--c-white); }
+
+    /* Arrow buttons */
+    .carousel__arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+    }
+    .carousel__arrow:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-50%) scale(1.06);
+    }
+    .carousel__arrow:active { transform: translateY(-50%) scale(0.97); }
+    .carousel__arrow:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
+    .carousel__arrow--prev { left: 28px; }
+    .carousel__arrow--next { right: 28px; }
+    .carousel__arrow--light {
+      border-color: rgba(0,0,0,0.1);
+      background: rgba(0,0,0,0.04);
+      color: var(--c-black);
+    }
+    .carousel__arrow--light:hover { background: rgba(0,0,0,0.08); }
+
+    /* Dots */
+    .carousel__dots {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      z-index: 20;
+    }
+    .carousel__dot {
+      width: 8px; height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.3);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: width 0.3s var(--ease), background 0.25s ease;
+    }
+    .carousel__dot.active {
+      width: 26px;
+      background: rgba(255,255,255,0.88);
+    }
+    /* Light-slide dot variant */
+    .carousel__dots.is-light .carousel__dot      { background: rgba(0,0,0,0.18); }
+    .carousel__dots.is-light .carousel__dot.active { background: var(--c-primary); }
+
+    /* Progress bar */
+    .carousel__progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: rgba(255,255,255,0.25);
+      width: 100%;
+      z-index: 20;
+      overflow: hidden;
+    }
+    .carousel__progress-fill {
+      height: 100%;
+      background: rgba(255,255,255,0.7);
+      width: 0%;
+      transition: width 5s linear;
+    }
+    .carousel__progress.is-light .carousel__progress-fill { background: var(--c-primary); }
+    .carousel__progress.is-light { background: rgba(0,0,0,0.08); }
+
+    /* ─── Problem Statement ──────────────────────── */
+    .section--problem {
+      background: var(--c-secondary);
+      padding: 96px 28px;
+      text-align: center;
+    }
+    .section--problem .inner { max-width: 680px; margin: 0 auto; }
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--c-muted);
+      margin-bottom: 22px;
+    }
+    .problem__text {
+      font-size: clamp(1.5rem, 3.5vw, 2.375rem);
+      font-weight: 600;
+      line-height: 1.35;
+      letter-spacing: -0.022em;
+      color: var(--c-black);
+    }
+
+    /* ─── Benefits ───────────────────────────────── */
+    .section--benefits {
+      padding: 112px 28px;
+      background: var(--c-white);
+    }
+    .section__head {
+      text-align: center;
+      max-width: 580px;
+      margin: 0 auto 72px;
+    }
+    .section__title {
+      font-size: clamp(1.875rem, 3.2vw, 2.875rem);
+      font-weight: 700;
+      letter-spacing: -0.027em;
+      color: var(--c-black);
+      margin-bottom: 16px;
+    }
+    .section__sub {
+      font-size: 1.0625rem;
+      color: var(--c-muted);
+      line-height: 1.68;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .benefits__grid {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .benefit-card {
+      background: var(--c-secondary);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px 32px;
+      transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease);
+      border: 1px solid transparent;
+    }
+    .benefit-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 44px rgba(0,0,0,0.07);
+      border-color: var(--c-border);
+    }
+    .benefit-card__icon {
+      font-size: 1.875rem;
+      display: block;
+      margin-bottom: 22px;
+      line-height: 1;
+    }
+    .benefit-card__title {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      letter-spacing: -0.012em;
+      color: var(--c-black);
+      margin-bottom: 11px;
+    }
+    .benefit-card__desc {
+      font-size: 0.9375rem;
+      color: #666666;
+      line-height: 1.68;
+    }
+
+    /* ─── Social Proof ───────────────────────────── */
+    .section--proof {
+      background: var(--c-primary);
+      padding: 112px 28px;
+      text-align: center;
+    }
+    .proof__eyebrow { color: rgba(255,255,255,0.38); }
+    .proof__headline {
+      font-size: clamp(1.5rem, 2.8vw, 2.25rem);
+      font-weight: 700;
+      color: white;
+      max-width: 580px;
+      margin: 0 auto 60px;
+      line-height: 1.3;
+      letter-spacing: -0.022em;
+    }
+    .testimonial {
+      max-width: 620px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: var(--radius-lg);
+      padding: 40px 44px;
+    }
+    .testimonial::before {
+      content: '\201C';
+      display: block;
+      font-size: 3.5rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.18);
+      margin-bottom: 16px;
+      font-family: Georgia, serif;
+    }
+    .testimonial__quote {
+      font-size: 1.0625rem;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.72;
+      font-style: italic;
+      margin-bottom: 22px;
+    }
+    .testimonial__author {
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ─── CTA / Email Capture ────────────────────── */
+    .section--cta {
+      padding: 112px 28px;
+      background: var(--c-white);
+      text-align: center;
+    }
+    .cta__title {
+      font-size: clamp(2.25rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      color: var(--c-black);
+      margin-bottom: 18px;
+      line-height: 1.07;
+    }
+    .cta__sub {
+      font-size: 1.0625rem;
+      color: var(--c-muted);
+      max-width: 460px;
+      margin: 0 auto 48px;
+      line-height: 1.68;
+    }
+    .email-form {
+      display: flex;
+      gap: 10px;
+      max-width: 460px;
+      margin: 0 auto 18px;
+    }
+    .email-form__input {
+      flex: 1;
+      min-width: 0;
+      padding: 14px 18px;
+      border: 1.5px solid var(--c-border);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      color: var(--c-black);
+      background: white;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .email-form__input:focus {
+      border-color: var(--c-primary);
+      box-shadow: 0 0 0 3px rgba(74,74,74,0.1);
+    }
+    .email-form__input::placeholder { color: #b0b0b0; }
+    .email-form__btn {
+      padding: 14px 24px;
+      background: var(--c-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .email-form__btn:hover { opacity: 0.82; transform: translateY(-1px); }
+    .email-form__btn:active { transform: translateY(0); }
+    .email-form__btn:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 3px; }
+    .email-form__btn:disabled {
+      background: var(--c-success);
+      opacity: 1;
+      transform: none;
+      cursor: default;
+    }
+    .trust-signal {
+      font-size: 0.8125rem;
+      color: #bbbbbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .trust-signal svg { flex-shrink: 0; }
+
+    /* ─── Footer ─────────────────────────────────── */
+    footer {
+      background: var(--c-secondary);
+      border-top: 1px solid var(--c-border);
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .footer__text {
+      font-size: 0.875rem;
+      color: var(--c-muted);
+      line-height: 1.7;
+    }
+
+    /* ─── Responsive ─────────────────────────────── */
+    @media (max-width: 1024px) {
+      .benefits__grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .carousel__arrow { width: 42px; height: 42px; }
+      .carousel__arrow--prev { left: 14px; }
+      .carousel__arrow--next { right: 14px; }
+      .testimonial { padding: 30px 26px; }
+      .section--benefits, .section--proof, .section--cta { padding: 80px 24px; }
+      .benefits__grid { gap: 16px; }
+    }
+    @media (max-width: 600px) {
+      .benefits__grid { grid-template-columns: 1fr; }
+      .email-form { flex-direction: column; }
+      .email-form__btn { width: 100%; padding: 15px; }
+      .carousel__arrow { display: none; }
+      .slide__content { padding: 0 20px; }
+    }
+
+    /* ─── Reduced motion ─────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .slide { transition: none; }
+      .carousel__progress-fill { transition: none; }
+      .benefit-card:hover { transform: none; }
+      * { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════ NAV ════════════════════════════════════ -->
+  <nav class="nav" id="nav" role="banner">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo" aria-label="Muffle home">Muffle</a>
+      <button
+        class="nav__cta"
+        onclick="scrollToSection('early-access')"
+        aria-label="Get early access"
+      >Get early access</button>
+    </div>
+  </nav>
+
+  <!-- ════ HERO CAROUSEL ══════════════════════════ -->
+  <section class="hero" aria-label="Hero">
+    <div class="carousel" id="carousel" role="region" aria-label="Product highlights">
+
+      <!-- Slide 1 — Brand intro, dark -->
+      <div class="slide slide--1 active" role="tabpanel" aria-label="Slide 1 of 4" aria-hidden="false">
+        <div class="slide__deco" aria-hidden="true"></div>
+        <div class="slide__content">
+          <span class="slide__eyebrow">Introducing Muffle</span>
+          <h1 class="slide__title">Focus Anywhere.<br>Even in Chaos.</h1>
+          <p class="slide__sub">Passive noise reduction designed for deep work in busy environments — no music, no distractions.</p>
+          <button class="slide__btn" onclick="scrollToSection('early-access')">Get early access</button>
+        </div>
+      </div>
+
+      <!-- Slide 2 — Engineering, light -->
+      <div class="slide slide--2" role="tabpanel" aria-label="Slide 2 of 4" aria-hidden="true">
+        <div class="slide__deco" aria-hidden="true"></div>
+        <div class="slide__content">
+          <span class="slide__eyebrow">Engineered for professionals</span>
+          <h2 class="slide__title">Silence the<br>noise floor.</h2>
+          <p class="slide__sub">Industrial-grade passive attenuation refined into a form you'd actually wear to a meeting.</p>
+          <button class="slide__btn" onclick="scrollToSection('early-access')">Reserve yours</button>
+        </div>
+      </div>
+
+      <!-- Slide 3 — No tech, dark -->
+      <div class="slide slide--3" role="tabpanel" aria-label="Slide 3 of 4" aria-hidden="true">
+        <div class="slide__deco" aria-hidden="true"></div>
+        <div class="slide__content">
+          <span class="slide__eyebrow">No batteries. No Bluetooth.</span>
+          <h2 class="slide__title">Pure sound<br>reduction.</h2>
+          <p class="slide__sub">No app. No pairing. No charging. Just put them on and get into the work that matters.</p>
+          <button class="slide__btn" onclick="scrollToSection('early-access')">Learn more</button>
+        </div>
+      </div>
+
+      <!-- Slide 4 — Design, light -->
+      <div class="slide slide--4" role="tabpanel" aria-label="Slide 4 of 4" aria-hidden="true">
+        <div class="slide__deco" aria-hidden="true"></div>
+        <div class="slide__content">
+          <span class="slide__eyebrow">Premium by design</span>
+          <h2 class="slide__title">Wear your<br>intention.</h2>
+          <p class="slide__sub">Matte finish. Minimal form. A signal to the room — and to yourself — that this time is focused time.</p>
+          <button class="slide__btn" onclick="scrollToSection('early-access')">Join the waitlist</button>
+        </div>
+      </div>
+
+      <!-- Arrow controls -->
+      <button class="carousel__arrow carousel__arrow--prev" id="prevBtn" aria-label="Previous slide">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="carousel__arrow carousel__arrow--next" id="nextBtn" aria-label="Next slide">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <!-- Pagination dots -->
+      <div class="carousel__dots" role="tablist" aria-label="Go to slide" id="dotsContainer">
+        <button class="carousel__dot active" data-idx="0" role="tab" aria-selected="true"  aria-label="Slide 1"></button>
+        <button class="carousel__dot"        data-idx="1" role="tab" aria-selected="false" aria-label="Slide 2"></button>
+        <button class="carousel__dot"        data-idx="2" role="tab" aria-selected="false" aria-label="Slide 3"></button>
+        <button class="carousel__dot"        data-idx="3" role="tab" aria-selected="false" aria-label="Slide 4"></button>
+      </div>
+
+      <!-- Auto-play progress bar -->
+      <div class="carousel__progress" id="progressBar">
+        <div class="carousel__progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ PROBLEM STATEMENT ══════════════════════ -->
+  <section class="section--problem" aria-labelledby="problem-heading">
+    <div class="inner">
+      <span class="eyebrow">The problem</span>
+      <p id="problem-heading" class="problem__text">
+        Open offices. Noisy cafes. Coworking chaos.<br>
+        You need to focus, but your environment won't let you.
+      </p>
+    </div>
+  </section>
+
+  <!-- ════ BENEFITS ═══════════════════════════════ -->
+  <section class="section--benefits" aria-labelledby="benefits-heading">
+    <div class="section__head">
+      <span class="eyebrow">Why Muffle</span>
+      <h2 id="benefits-heading" class="section__title">Built for how you actually work</h2>
+      <p class="section__sub">No subscriptions. No gimmicks. Just the clarity you need, when you need it.</p>
+    </div>
+    <div class="benefits__grid">
+      <div class="benefit-card">
+        <span class="benefit-card__icon" aria-hidden="true">🔇</span>
+        <h3 class="benefit-card__title">Passive noise blocking</h3>
+        <p class="benefit-card__desc">No batteries, no Bluetooth, no complications. Pure sound reduction engineering.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-card__icon" aria-hidden="true">✨</span>
+        <h3 class="benefit-card__title">Premium design</h3>
+        <p class="benefit-card__desc">Look professional, feel confident. Matte finish, minimal aesthetics.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-card__icon" aria-hidden="true">👂</span>
+        <h3 class="benefit-card__title">Always aware</h3>
+        <p class="benefit-card__desc">Hear what matters — conversations, announcements, your surroundings.</p>
+      </div>
+      <div class="benefit-card">
+        <span class="benefit-card__icon" aria-hidden="true">🌍</span>
+        <h3 class="benefit-card__title">Works everywhere</h3>
+        <p class="benefit-card__desc">Cafe, office, library, home. Your focus tool, anywhere.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════ SOCIAL PROOF ═══════════════════════════ -->
+  <section class="section--proof" aria-labelledby="proof-heading">
+    <span class="eyebrow proof__eyebrow">Early access</span>
+    <h2 id="proof-heading" class="proof__headline">
+      Trusted by professionals<br>who refuse to compromise
+    </h2>
+    <figure class="testimonial" role="figure">
+      <blockquote>
+        <p class="testimonial__quote">
+          "Finally, something that lets me focus in the office without cutting off my team.
+          Muffle is exactly what I needed."
+        </p>
+      </blockquote>
+      <figcaption class="testimonial__author">— Early access member</figcaption>
+    </figure>
+  </section>
+
+  <!-- ════ EMAIL CAPTURE ══════════════════════════ -->
+  <section class="section--cta" id="early-access" aria-labelledby="cta-heading">
+    <span class="eyebrow">Limited early access</span>
+    <h2 id="cta-heading" class="cta__title">
+      Your environment<br>doesn't define you.
+    </h2>
+    <p class="cta__sub">
+      Join the waitlist. Be first to know when Muffle ships.
+      Limited allocation for our founding members.
+    </p>
+    <form class="email-form" id="emailForm" novalidate>
+      <input
+        id="emailInput"
+        class="email-form__input"
+        type="email"
+        placeholder="your@email.com"
+        required
+        autocomplete="email"
+        aria-label="Your email address"
+        aria-required="true"
+        aria-describedby="form-status"
+      />
+      <button type="submit" class="email-form__btn" id="submitBtn">
+        Get early access
+      </button>
+    </form>
+    <p class="trust-signal" id="form-status" aria-live="polite">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="6" stroke="#bbbbbb" stroke-width="1"/>
+        <path d="M3.5 6.5L5.5 8.5L9 5" stroke="#bbbbbb" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Privacy first — We'll never spam you.
+    </p>
+  </section>
+
+  <!-- ════ FOOTER ══════════════════════════════════ -->
+  <footer role="contentinfo">
+    <p class="footer__text">
+      © 2024 Muffle. Built by jolyonmarsh1-code.<br>
+      Privacy first. Limited early access for high-quality customers.
+    </p>
+  </footer>
+
+  <!-- ════ SCRIPTS ════════════════════════════════ -->
+  <script>
+    'use strict';
+
+    /* ── Scroll helper ── */
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ── Nav shadow on scroll ── */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    }, { passive: true });
+
+    /* ── Carousel ─────────────────────────────────────── */
+    (function () {
+      const INTERVAL = 5000;
+      // Slides 0 and 2 are dark; 1 and 3 are light
+      const LIGHT_SLIDES = new Set([1, 3]);
+
+      const slides      = Array.from(document.querySelectorAll('.slide'));
+      const dots        = Array.from(document.querySelectorAll('.carousel__dot'));
+      const prevBtn     = document.getElementById('prevBtn');
+      const nextBtn     = document.getElementById('nextBtn');
+      const dotsEl      = document.getElementById('dotsContainer');
+      const progressBar = document.getElementById('progressBar');
+      const progressFill= document.getElementById('progressFill');
+
+      let current = 0;
+      let timer   = null;
+      let progTimer = null;
+
+      function applyTheme(idx) {
+        const light = LIGHT_SLIDES.has(idx);
+        // Arrows
+        [prevBtn, nextBtn].forEach(btn =>
+          btn.classList.toggle('carousel__arrow--light', light)
+        );
+        // Dots
+        dotsEl.classList.toggle('is-light', light);
+        // Progress bar
+        progressBar.classList.toggle('is-light', light);
+        progressFill.classList.toggle('is-light', light);
+      }
+
+      function startProgress() {
+        clearTimeout(progTimer);
+        progressFill.style.transition = 'none';
+        progressFill.style.width = '0%';
+        // Force reflow
+        void progressFill.offsetWidth;
+        progressFill.style.transition = 'width ' + INTERVAL + 'ms linear';
+        progressFill.style.width = '100%';
+      }
+
+      function goTo(idx) {
+        const next = ((idx % slides.length) + slides.length) % slides.length;
+        if (next === current) return;
+
+        slides[current].classList.remove('active');
+        slides[current].setAttribute('aria-hidden', 'true');
+        dots[current].classList.remove('active');
+        dots[current].setAttribute('aria-selected', 'false');
+
+        current = next;
+
+        slides[current].classList.add('active');
+        slides[current].setAttribute('aria-hidden', 'false');
+        dots[current].classList.add('active');
+        dots[current].setAttribute('aria-selected', 'true');
+
+        applyTheme(current);
+        startProgress();
+      }
+
+      function startTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), INTERVAL);
+      }
+
+      function resetTimer() {
+        startTimer();
+        startProgress();
+      }
+
+      prevBtn.addEventListener('click', () => { goTo(current - 1); resetTimer(); });
+      nextBtn.addEventListener('click', () => { goTo(current + 1); resetTimer(); });
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          goTo(parseInt(dot.dataset.idx, 10));
+          resetTimer();
+        });
+      });
+
+      // Keyboard arrows
+      const carouselEl = document.getElementById('carousel');
+      carouselEl.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft')  { goTo(current - 1); resetTimer(); }
+        if (e.key === 'ArrowRight') { goTo(current + 1); resetTimer(); }
+      });
+
+      // Touch / swipe
+      let touchX = 0;
+      carouselEl.addEventListener('touchstart', e => {
+        touchX = e.touches[0].clientX;
+      }, { passive: true });
+      carouselEl.addEventListener('touchend', e => {
+        const dx = touchX - e.changedTouches[0].clientX;
+        if (Math.abs(dx) > 48) {
+          goTo(dx > 0 ? current + 1 : current - 1);
+          resetTimer();
+        }
+      }, { passive: true });
+
+      // Pause on hover / focus
+      carouselEl.addEventListener('mouseenter', () => clearInterval(timer));
+      carouselEl.addEventListener('focusin',    () => clearInterval(timer));
+      carouselEl.addEventListener('mouseleave', resetTimer);
+      carouselEl.addEventListener('focusout',   resetTimer);
+
+      // Init
+      applyTheme(0);
+      startTimer();
+      startProgress();
+    })();
+
+    /* ── Email form ──────────────────────────────────── */
+    document.getElementById('emailForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const input  = document.getElementById('emailInput');
+      const btn    = document.getElementById('submitBtn');
+      const status = document.getElementById('form-status');
+
+      if (!input.value || !input.validity.valid) {
+        input.focus();
+        return;
+      }
+
+      btn.disabled  = true;
+      input.disabled = true;
+      btn.textContent = '✓ You\'re on the list';
+
+      status.innerHTML =
+        '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">' +
+        '<circle cx="6.5" cy="6.5" r="6" stroke="#2D7A4F" stroke-width="1"/>' +
+        '<path d="M3.5 6.5L5.5 8.5L9 5" stroke="#2D7A4F" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg> ' +
+        'Thanks! We\'ll be in touch before we launch.';
+      status.style.color = '#2D7A4F';
+    });
+  </script>
+</body>
+</html>
